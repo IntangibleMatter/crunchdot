@@ -1,0 +1,14 @@
+[configuration]
+entry_symbol = "gdext_rust_init"
+compatibility_minimum = 4.1
+reloadable = true
+
+[libraries]
+linux.debug.x86_64 =     "res://../rust/target/debug/libcrunchdot.so"
+linux.release.x86_64 =   "res://../rust/target/release/libcrunchdot.so"
+windows.debug.x86_64 =   "res://../rust/target/debug/crunchdot.dll"
+windows.release.x86_64 = "res://../rust/target/release/crunchdot.dll"
+macos.debug =            "res://../rust/target/debug/libcrunchdot.dylib"
+macos.release =          "res://../rust/target/release/libcrunchdot.dylib"
+macos.debug.arm64 =      "res://../rust/target/debug/libcrunchdot.dylib"
+macos.release.arm64 =    "res://../rust/target/release/libcrunchdot.dylib"
