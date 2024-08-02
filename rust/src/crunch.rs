@@ -16,9 +16,12 @@ struct CrunchPacker {
 
 #[godot_api]
 impl IRefCounted for CrunchPacker {
-    fn init() -> Self {
+    fn init(base: Base<RefCounted>) -> Self {
         godot_print!("HELLO WORLD!");
-        Self { items: vec![] }
+        Self {
+            items: vec![],
+            base,
+        }
     }
 }
 #[godot_api]
