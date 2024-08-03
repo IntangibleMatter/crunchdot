@@ -1,3 +1,4 @@
+use core::panic;
 use crunch::*;
 use godot::builtin::Array;
 use godot::classes::{IRefCounted, RefCounted};
@@ -33,5 +34,12 @@ impl CrunchPacker {
     }
 
     #[func]
-    fn crunch(&mut self) {}
+    fn crunch(&mut self) {
+        match crunch::pack_into_po2(2048, self.items.clone()) {
+            Ok(PackedItems { w, h, items }) => {}
+            Err(_) => {
+                panic!("Failed to pack images.")
+            }
+        }
+    }
 }
