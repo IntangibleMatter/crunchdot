@@ -1,10 +1,7 @@
 use core::panic;
 use crunch::*;
-use godot::builtin::Array;
-use godot::classes::image::Format;
-use godot::classes::{IRefCounted, Image, RefCounted, Texture, Texture2D};
-use godot::meta::ArrayElement;
-use godot::obj::{AsObjectArg, NewGd};
+use godot::classes::{AtlasTexture, IRefCounted, Image, RefCounted, Texture2D};
+use godot::obj::NewGd;
 use godot::prelude::*;
 use std::vec;
 
@@ -36,7 +33,7 @@ impl CrunchPacker {
     }
 
     #[func]
-    fn crunch(&mut self) {
+    fn pack(&mut self, max_width: i64, max_height: i64) {
         match crunch::pack_into_po2(2048, self.items.clone()) {
             Ok(PackedItems { w, h, items }) => {}
             Err(_) => {
@@ -44,19 +41,24 @@ impl CrunchPacker {
             }
         }
     }
+
+    #[func]
+    fn pack_into_po2(&mut self, max_po2: i64) {}
 }
 
 #[derive(GodotClass)]
 #[class(base=RefCounted)]
-struct CrunchItemData {
+struct CrunchableItemData {
+    #[var]
     path: GString,
     image: Gd<Image>,
+    #[var]
     og_rect: Rect2i,
     base: Base<RefCounted>,
 }
 
 #[godot_api]
-impl IRefCounted for CrunchItemData {
+impl IRefCounted for CrunchableItemData {
     fn init(base: Base<RefCounted>) -> Self {
         Self {
             base,
@@ -71,7 +73,7 @@ impl IRefCounted for CrunchItemData {
 }
 
 #[godot_api]
-impl CrunchItemData {
+impl CrunchableItemData {
     #[func]
     fn from_texture(tex: Gd<Texture2D>, trim: bool) -> Gd<Self> {
         Gd::from_init_fn(|base| Self {
@@ -90,7 +92,7 @@ impl CrunchItemData {
 
     fn tex_to_img(tex: Gd<Texture2D>, trim: bool) -> Gd<Image> {
         if trim {
-            let opt_img: Option<Gd<Image>> = tex.get_image();
+            let opt_img = tex.get_image();
 
             if opt_img.is_some() {
                 let img = opt_img.unwrap();
@@ -106,5 +108,40 @@ impl CrunchItemData {
         } else {
             tex.get_image().unwrap()
         }
+    }
+}
+
+#[derive(GodotClass)]
+#[class(base=RefCounted)]
+struct CrunchedItemData {
+    #[var]
+    path: GString,
+    #[var]
+    atlastex: Gd<AtlasTexture>,
+    #[var]
+    atlasrect: Rect2i,
+    base: Base<RefCounted>,
+}
+
+#[godot_api]
+impl IRefCounted for CrunchedItemData {
+    fn init(base: Base<RefCounted>) -> Self {
+        Self {
+            base,
+            path: GString::new(),
+            atlastex: AtlasTexture::new_gd(),
+            atlasrect: Rect2i {
+                position: Vector2i::ZERO,
+                size: Vector2i::ZERO,
+            },
+        }
+    }
+}
+
+#[godot_api]
+impl CrunchedItemData {
+    #[func]
+    fn commmit_texture(&mut self) {
+        self.atlastex.take_over_path(self.path.clone());
     }
 }
